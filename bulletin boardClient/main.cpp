@@ -3,6 +3,11 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
+using std::cin;
+using std::cout;
+using std::endl;
+using std::string;
+
 #pragma comment( lib, "ws2_32.lib" )
 
 // ポート番号
@@ -13,9 +18,6 @@ const unsigned int MESSAGELENGTH = 1024;
 
 int main()
 {
-    char Hp = 0;
-    char Attack = 0;
-    char Magic = 0;
 
     int ret;
     // WinSockの初期化	WinSock2.2
@@ -36,9 +38,9 @@ int main()
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     // 接続先サーバのIPアドレスを入力させる
-    std::string serverIpAddress;
-    std::cout << "Input Server IPv4 address :";
-    std::cin >> serverIpAddress;
+    string serverIpAddress;
+    cout << "Input Server IPv4 address :";
+    cin >> serverIpAddress;
 
     while (true)
     {
@@ -53,23 +55,20 @@ int main()
         char message[MESSAGELENGTH];	// サーバ側とサイズを合わせること
         SOCKADDR_IN fromAddr;
         int fromlen = sizeof(fromAddr);
-        std::cout << "Input message:";
-        std::cin >> message;
-        //for (int i = 0; i < 3; i++)
+        char Hp = '0';
+        char Attack = '0';
+        char Magic = '0';
+        cout << "Input message:";
+        cin >> message;
+        ret = sendto(sock, message, strlen(message), 0, (SOCKADDR*)&toAddr, tolen);
+        if (ret == SOCKET_ERROR)
         {
-            message[0] = Hp;
-            message[1] = Attack;
-            message[2] = Magic;
-            ret = sendto(sock, message, MESSAGELENGTH, 0, (SOCKADDR*)&toAddr, tolen);
-            if (ret == SOCKET_ERROR)
-            {
-                /*
-                    エラー処理
-                */
-            }
+            /*
+                エラー処理
+            */
         }
-
-        ret = recvfrom(sock, message, MESSAGELENGTH, 0, (SOCKADDR*)&fromAddr, &fromlen);
+        ret = recvfrom(sock, message, sizeof(message) - 1, 0, (SOCKADDR*)&fromAddr, &fromlen);
+        message[ret] = '\0';
         if (ret == SOCKET_ERROR)
         {
 
